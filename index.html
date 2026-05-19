@@ -774,10 +774,18 @@
 
       <!-- Step 2: Submit form -->
       <div style="background:var(--success-light); border:1px solid #86efac; border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px;">
-        <div style="font-size:0.82rem; font-weight:600; color:#166534; margin-bottom:8px;">② Pak předvyplň formulář (fotky přilož na Bazoš.cz)</div>
-        <button class="btn btn-success" id="bazos-submit-btn" style="font-size:1rem; width:100%;">
-          🚀 Předvyplnit formulář na Bazoš.cz
+        <div style="font-size:0.82rem; font-weight:600; color:#166534; margin-bottom:8px;">② Předvyplň formulář na Bazoš.cz</div>
+        <button class="btn btn-success" id="bazos-submit-btn" style="font-size:1rem; width:100%; margin-bottom:8px;">
+          🚀 Otevřít předvyplněný formulář
         </button>
+        <div id="bazos-retry-hint" style="display:none; margin-top:4px;">
+          <button class="btn" id="bazos-retry-btn" style="width:100%; background:#15803d; color:#fff; font-size:0.95rem; margin-bottom:8px;">
+            🔄 Zkus znovu (po ověření)
+          </button>
+          <div style="font-size:0.78rem; color:#166534; line-height:1.5;">
+            Dokonči ověření na Bazoš.cz, vrať se sem a klikni <strong>Zkus znovu</strong>.
+          </div>
+        </div>
       </div>
 
       <!-- Fallback: manual copy (collapsed) -->
@@ -1327,6 +1335,8 @@ function publishToBazos() {
   form.submit();
   document.body.removeChild(form);
 
+  // Show retry hint in case verification wall appears
+  show('bazos-retry-hint');
   showToast('Otevírám Bazoš.cz… 🚀');
 }
 
@@ -1490,6 +1500,10 @@ $('download-all-btn').addEventListener('click', () => {
 });
 
 $('bazos-submit-btn').addEventListener('click', () => {
+  publishToBazos();
+});
+
+$('bazos-retry-btn').addEventListener('click', () => {
   publishToBazos();
 });
 
