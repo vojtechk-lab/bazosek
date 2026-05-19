@@ -1,0 +1,1572 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Bazošek" />
+  <meta name="theme-color" content="#2563eb" />
+  <title>Bazošek</title>
+  <link rel="manifest" href="manifest.json" />
+  <style>
+    /* ─── CSS Variables ─── */
+    :root {
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --primary-light: #dbeafe;
+      --success: #16a34a;
+      --success-light: #dcfce7;
+      --danger: #dc2626;
+      --danger-light: #fee2e2;
+      --warning: #d97706;
+      --warning-light: #fef3c7;
+      --bg: #f0f2f5;
+      --card: #ffffff;
+      --text: #1e293b;
+      --text-secondary: #64748b;
+      --text-muted: #94a3b8;
+      --border: #e2e8f0;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,.08);
+      --shadow: 0 4px 16px rgba(0,0,0,.10);
+      --shadow-lg: 0 8px 32px rgba(0,0,0,.14);
+      --radius: 16px;
+      --radius-sm: 10px;
+      --radius-xs: 6px;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    /* ─── Reset & Base ─── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      font-size: 16px;
+      background: var(--bg);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overscroll-behavior: none;
+    }
+
+    body {
+      padding-top: var(--safe-top);
+      padding-bottom: var(--safe-bottom);
+    }
+
+    /* ─── App Shell ─── */
+    #app {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ─── Screen System ─── */
+    .screen {
+      display: none;
+      flex-direction: column;
+      min-height: 100vh;
+      animation: fadeIn .22s ease;
+    }
+    .screen.active { display: flex; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ─── Header ─── */
+    .header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      box-shadow: var(--shadow-sm);
+    }
+    .header-title {
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--text);
+      letter-spacing: -.3px;
+    }
+    .header-title span { color: var(--primary); }
+    .icon-btn {
+      width: 44px;
+      height: 44px;
+      border: none;
+      background: var(--bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background .15s;
+    }
+    .icon-btn:active { background: var(--border); }
+
+    /* ─── Scrollable Content ─── */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px 16px;
+      max-width: 600px;
+      width: 100%;
+      margin: 0 auto;
+    }
+    .content.centered {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ─── Cards ─── */
+    .card {
+      background: var(--card);
+      border-radius: var(--radius);
+      padding: 24px;
+      box-shadow: var(--shadow);
+      margin-bottom: 16px;
+    }
+    .card-sm {
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+      margin-bottom: 12px;
+    }
+
+    /* ─── Typography ─── */
+    h1 { font-size: 2rem; font-weight: 800; letter-spacing: -.5px; margin-bottom: 8px; }
+    h2 { font-size: 1.25rem; font-weight: 700; margin-bottom: 12px; letter-spacing: -.3px; }
+    h3 { font-size: 1rem; font-weight: 600; margin-bottom: 8px; }
+    p  { color: var(--text-secondary); line-height: 1.55; }
+    .muted { color: var(--text-muted); font-size: .85rem; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 15px 20px;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: transform .12s, opacity .12s, box-shadow .12s;
+      min-height: 52px;
+      text-decoration: none;
+      letter-spacing: -.2px;
+    }
+    .btn:active { transform: scale(.97); opacity: .9; }
+    .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(37,99,235,.35);
+    }
+    .btn-primary:hover:not(:disabled) { background: var(--primary-dark); }
+
+    .btn-success {
+      background: var(--success);
+      color: #fff;
+      box-shadow: 0 2px 8px rgba(22,163,74,.35);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--border);
+    }
+    .btn-ghost:hover { border-color: var(--primary); background: var(--primary-light); }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .btn-sm {
+      padding: 8px 14px;
+      min-height: 36px;
+      font-size: .875rem;
+      width: auto;
+      border-radius: var(--radius-xs);
+    }
+
+    .btn-outline-sm {
+      padding: 7px 13px;
+      min-height: 36px;
+      font-size: .875rem;
+      width: auto;
+      border-radius: var(--radius-xs);
+      background: transparent;
+      color: var(--primary);
+      border: 1.5px solid var(--primary);
+      font-weight: 600;
+      font-family: var(--font);
+      cursor: pointer;
+      transition: background .12s;
+    }
+    .btn-outline-sm:active { background: var(--primary-light); }
+
+    /* ─── Inputs ─── */
+    .input-group { margin-bottom: 16px; }
+    .input-label {
+      display: block;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text-secondary);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+    .input, .textarea {
+      width: 100%;
+      padding: 13px 14px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: 1rem;
+      font-family: var(--font);
+      color: var(--text);
+      background: var(--card);
+      transition: border-color .15s, box-shadow .15s;
+      -webkit-appearance: none;
+    }
+    .input:focus, .textarea:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(37,99,235,.15);
+    }
+    .textarea {
+      resize: vertical;
+      min-height: 120px;
+      line-height: 1.5;
+    }
+
+    .price-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .price-wrapper .input { flex: 1; }
+    .price-suffix {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text-secondary);
+      white-space: nowrap;
+    }
+
+    /* ─── Pills ─── */
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 14px;
+      border-radius: 100px;
+      font-size: .875rem;
+      font-weight: 600;
+      gap: 6px;
+    }
+    .pill-blue  { background: var(--primary-light); color: var(--primary); }
+    .pill-green { background: var(--success-light); color: var(--success); }
+    .pill-row   { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 4px; }
+
+    /* ─── Photo Thumbnails ─── */
+    .thumb-scroll {
+      display: flex;
+      gap: 10px;
+      overflow-x: auto;
+      padding: 4px 2px 8px;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+    }
+    .thumb-scroll::-webkit-scrollbar { display: none; }
+
+    .thumb {
+      position: relative;
+      flex-shrink: 0;
+      width: 90px;
+      height: 90px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .thumb-badge {
+      position: absolute;
+      bottom: 4px;
+      right: 4px;
+      background: rgba(0,0,0,.55);
+      color: #fff;
+      font-size: .65rem;
+      font-weight: 700;
+      padding: 2px 5px;
+      border-radius: 4px;
+    }
+    .thumb-remove {
+      position: absolute;
+      top: 3px;
+      right: 3px;
+      width: 22px;
+      height: 22px;
+      background: rgba(220,38,38,.85);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      font-size: .8rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    /* ─── Enhanced Photo Carousel ─── */
+    .photo-card {
+      position: relative;
+      flex-shrink: 0;
+      width: 200px;
+      height: 200px;
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      box-shadow: var(--shadow);
+      background: var(--bg);
+    }
+    .photo-card img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .photo-card .dl-btn {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      background: rgba(0,0,0,.6);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-xs);
+      padding: 6px 10px;
+      font-size: .8rem;
+      cursor: pointer;
+      font-family: var(--font);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .photo-card .warn-badge {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      background: rgba(217,119,6,.9);
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 700;
+      padding: 3px 7px;
+      border-radius: 4px;
+    }
+
+    /* ─── Spinner & Progress ─── */
+    .spinner-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 24px;
+      padding: 40px 20px;
+    }
+    .spinner {
+      width: 56px;
+      height: 56px;
+      border: 4px solid var(--border);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .9s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .status-text {
+      font-size: 1.05rem;
+      font-weight: 600;
+      color: var(--text);
+      text-align: center;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      max-width: 260px;
+      height: 6px;
+      background: var(--border);
+      border-radius: 100px;
+      overflow: hidden;
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--primary);
+      border-radius: 100px;
+      transition: width .4s ease;
+    }
+
+    /* ─── Error Card ─── */
+    .error-card {
+      background: var(--danger-light);
+      border: 1.5px solid #fca5a5;
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .error-card h3 { color: var(--danger); margin-bottom: 6px; }
+    .error-card p  { color: #991b1b; font-size: .9rem; margin-bottom: 12px; }
+
+    .warn-card {
+      background: var(--warning-light);
+      border: 1.5px solid #fcd34d;
+      border-radius: var(--radius-sm);
+      padding: 12px 16px;
+      margin-bottom: 12px;
+      font-size: .9rem;
+      color: #92400e;
+    }
+
+    /* ─── Checklist (Screen 5) ─── */
+    .checklist-item {
+      background: var(--card);
+      border-radius: var(--radius-sm);
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: var(--shadow-sm);
+    }
+    .checklist-item-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .checklist-label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: .8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      color: var(--text-secondary);
+    }
+    .check-icon { color: var(--success); font-size: 1.1rem; }
+    .checklist-preview {
+      margin-top: 8px;
+      font-size: .9rem;
+      color: var(--text);
+      line-height: 1.45;
+      max-height: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      display: -webkit-box;
+      -webkit-line-clamp: 3;
+      -webkit-box-orient: vertical;
+    }
+
+    /* ─── Section Headings ─── */
+    .section-heading {
+      font-size: 1rem;
+      font-weight: 700;
+      color: var(--text);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* ─── Home Hero ─── */
+    .hero-icon {
+      font-size: 4rem;
+      margin-bottom: 16px;
+      display: block;
+      text-align: center;
+    }
+    .hero-card {
+      text-align: center;
+      padding: 40px 24px;
+    }
+
+    /* ─── Divider ─── */
+    .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+    /* ─── Utility ─── */
+    .mt-8  { margin-top: 8px; }
+    .mt-12 { margin-top: 12px; }
+    .mt-16 { margin-top: 16px; }
+    .mt-20 { margin-top: 20px; }
+    .mb-8  { margin-bottom: 8px; }
+    .mb-12 { margin-bottom: 12px; }
+    .gap-8  { gap: 8px; }
+    .row { display: flex; gap: 10px; align-items: center; }
+    .flex-1 { flex: 1; }
+    .text-center { text-align: center; }
+    .hidden { display: none !important; }
+
+    /* ─── Settings Modal ─── */
+    .overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      z-index: 200;
+      align-items: flex-end;
+      padding-bottom: var(--safe-bottom);
+    }
+    .overlay.open { display: flex; }
+    .sheet {
+      background: var(--card);
+      border-radius: var(--radius) var(--radius) 0 0;
+      padding: 24px 20px;
+      width: 100%;
+      max-width: 600px;
+      margin: 0 auto;
+      animation: slideUp .22s ease;
+    }
+    @keyframes slideUp {
+      from { transform: translateY(40px); opacity: 0; }
+      to   { transform: translateY(0);    opacity: 1; }
+    }
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: var(--border);
+      border-radius: 2px;
+      margin: 0 auto 20px;
+    }
+
+    /* ─── Copy feedback ─── */
+    .copy-feedback {
+      position: fixed;
+      bottom: calc(var(--safe-bottom) + 20px);
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--text);
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 100px;
+      font-size: .9rem;
+      font-weight: 600;
+      opacity: 0;
+      transition: opacity .2s, transform .2s;
+      z-index: 300;
+      pointer-events: none;
+      white-space: nowrap;
+    }
+    .copy-feedback.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+  </style>
+</head>
+<body>
+<div id="app">
+
+  <!-- ══════════════════════════════
+       SCREEN 0 – SETUP
+  ══════════════════════════════ -->
+  <div id="screen-setup" class="screen">
+    <div class="content centered">
+      <div class="card" style="width:100%; max-width:400px; text-align:center;">
+        <span style="font-size:3.5rem; display:block; margin-bottom:12px;">🛍️</span>
+        <h1 style="font-size:1.9rem;">Bazošek</h1>
+        <p style="margin-bottom:24px;">Zadej svůj Gemini API klíč a začni prodávat chytře.</p>
+        <div class="input-group" style="text-align:left;">
+          <label class="input-label" for="api-key-input">Gemini API klíč</label>
+          <input
+            type="password"
+            id="api-key-input"
+            class="input"
+            placeholder="AIzaSy..."
+            autocomplete="off"
+            autocorrect="off"
+            spellcheck="false"
+          />
+        </div>
+        <p class="muted" style="margin-bottom:20px;">🔒 Klíč se uloží jen na tvém zařízení</p>
+        <button class="btn btn-primary" id="setup-btn">Začít →</button>
+        <div id="setup-error" class="hidden" style="margin-top:12px;">
+          <div class="error-card"><h3>Chyba</h3><p id="setup-error-msg"></p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SCREEN 1 – HOME
+  ══════════════════════════════ -->
+  <div id="screen-home" class="screen">
+    <div class="header">
+      <span class="header-title">Bazoš<span>ek</span> 🛍️</span>
+      <button class="icon-btn" id="settings-btn" title="Nastavení">⚙️</button>
+    </div>
+    <div class="content centered">
+      <div class="card hero-card" style="width:100%;">
+        <span class="hero-icon">📦</span>
+        <h2 style="font-size:1.4rem; margin-bottom:8px;">Co chceš prodat?</h2>
+        <p style="margin-bottom:28px;">Vyfotíš nebo vyber 1–5 fotek, zbytek udělám já.</p>
+        <button class="btn btn-primary" id="add-photos-btn" style="font-size:1.1rem; padding:17px;">
+          📷 Přidat věc k prodeji
+        </button>
+        <input
+          type="file"
+          id="file-input"
+          accept="image/*"
+          multiple
+          class="hidden"
+        />
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SCREEN 2 – PHOTOS SELECTED
+  ══════════════════════════════ -->
+  <div id="screen-photos" class="screen">
+    <div class="header">
+      <span class="header-title">Vybrané fotky</span>
+      <span></span>
+    </div>
+    <div class="content">
+      <div class="card">
+        <div class="section-heading">📸 Fotky <span id="photo-count" style="color:var(--text-muted); font-size:.85rem;"></span></div>
+        <div class="thumb-scroll" id="thumb-row"></div>
+        <p class="muted mt-8">Přetáhni pro změnu pořadí, nebo odeber kliknutím na ×</p>
+      </div>
+
+      <div id="photo-warning" class="warn-card hidden">
+        ⚠️ Maximálně 5 fotek. Vybrané navíc byly odebrány.
+      </div>
+
+      <div style="margin-top:8px;">
+        <button class="btn btn-primary" id="process-btn">Zpracovat →</button>
+        <button class="btn btn-ghost mt-12" id="back-to-home-btn">← Zpět</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SCREEN 3 – PROCESSING
+  ══════════════════════════════ -->
+  <div id="screen-processing" class="screen">
+    <div class="content centered">
+      <div class="card" style="width:100%; text-align:center;">
+        <div class="spinner-wrap">
+          <div class="spinner"></div>
+          <div>
+            <div class="status-text" id="status-text">Připravuji...</div>
+            <div class="muted mt-8" id="status-sub"></div>
+          </div>
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-fill" id="progress-bar" style="width:0%"></div>
+          </div>
+          <div class="muted" id="progress-label"></div>
+        </div>
+        <div id="processing-error" class="hidden" style="margin-top:0;">
+          <div class="error-card">
+            <h3>Něco se nepovedlo 😕</h3>
+            <p id="processing-error-msg"></p>
+            <button class="btn btn-danger btn-sm" id="retry-btn">↻ Zkusit znovu</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SCREEN 4 – REVIEW
+  ══════════════════════════════ -->
+  <div id="screen-review" class="screen">
+    <div class="header">
+      <span class="header-title">Tvůj inzerát</span>
+      <span></span>
+    </div>
+    <div class="content">
+
+      <!-- Photo warnings -->
+      <div id="photo-warnings-container"></div>
+
+      <!-- Photos -->
+      <div class="card">
+        <div class="section-heading">📸 Fotky</div>
+        <div class="thumb-scroll" id="enhanced-photos-row"></div>
+        <p class="muted mt-8">Klikni na ⬇ pro stažení fotky</p>
+      </div>
+
+      <!-- Ad form -->
+      <div class="card">
+        <div class="section-heading">📝 Inzerát</div>
+
+        <div class="input-group">
+          <label class="input-label" for="review-nazev">Název</label>
+          <input type="text" id="review-nazev" class="input" maxlength="60" />
+          <div class="muted mt-8" id="nazev-count" style="text-align:right;"></div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="review-popis">Popis</label>
+          <textarea id="review-popis" class="textarea" rows="5"></textarea>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label" for="review-cena">Cena</label>
+          <div class="price-wrapper">
+            <input type="number" id="review-cena" class="input" min="0" step="10" />
+            <span class="price-suffix">Kč</span>
+          </div>
+        </div>
+
+        <div class="input-group" style="margin-bottom:0;">
+          <label class="input-label">Kategorie &amp; Stav</label>
+          <div class="pill-row">
+            <span class="pill pill-blue" id="review-kategorie"></span>
+            <span class="pill pill-green" id="review-stav"></span>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-success" id="to-publish-btn">Zveřejnit na Bazoš.cz →</button>
+      <button class="btn btn-ghost mt-12" id="back-to-photos-btn">← Zpět na fotky</button>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════
+       SCREEN 5 – PUBLISH HELPER
+  ══════════════════════════════ -->
+  <div id="screen-publish" class="screen">
+    <div class="header">
+      <span class="header-title">Hotovo! Na Bazoš 🎉</span>
+      <span></span>
+    </div>
+    <div class="content">
+
+      <!-- Ad summary card -->
+      <div class="checklist-item" style="margin-bottom:16px;">
+        <div style="font-weight:600; font-size:1rem; margin-bottom:4px;" id="pub-nazev"></div>
+        <div style="color:var(--primary); font-size:1.05rem; font-weight:600; margin-bottom:6px;" id="pub-cena"></div>
+        <div style="font-size:0.85rem; color:var(--text-secondary); line-height:1.5; max-height:72px; overflow:hidden;" id="pub-popis"></div>
+      </div>
+
+      <!-- Step 1: Download photos -->
+      <div style="background:var(--warning-light); border:1px solid #fde68a; border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:12px;">
+        <div style="font-size:0.82rem; font-weight:600; color:#92400e; margin-bottom:8px;">① Nejdřív stáhni fotky do galerie</div>
+        <button class="btn" id="download-all-btn" style="background:#f59e0b; color:#fff; font-size:0.9rem; padding:10px 16px; width:100%;">
+          📥 Stáhnout všechny vylepšené fotky
+        </button>
+      </div>
+
+      <!-- Step 2: Submit form -->
+      <div style="background:var(--success-light); border:1px solid #86efac; border-radius:var(--radius-sm); padding:12px 14px; margin-bottom:16px;">
+        <div style="font-size:0.82rem; font-weight:600; color:#166534; margin-bottom:8px;">② Pak předvyplň formulář (fotky přilož na Bazoš.cz)</div>
+        <button class="btn btn-success" id="bazos-submit-btn" style="font-size:1rem; width:100%;">
+          🚀 Předvyplnit formulář na Bazoš.cz
+        </button>
+      </div>
+
+      <!-- Fallback: manual copy (collapsed) -->
+      <details style="margin-bottom:16px;">
+        <summary style="cursor:pointer; font-size:0.85rem; color:var(--text-secondary); padding:6px 0; user-select:none;">
+          Kopírovat ručně ▾
+        </summary>
+        <div style="margin-top:10px;">
+          <div class="checklist-item">
+            <div class="checklist-item-header">
+              <span class="checklist-label"><span class="check-icon">✓</span> Název</span>
+              <button class="btn-outline-sm" id="copy-nazev-btn">Kopírovat</button>
+            </div>
+            <div class="checklist-preview" id="pub-nazev-copy"></div>
+          </div>
+          <div class="checklist-item">
+            <div class="checklist-item-header">
+              <span class="checklist-label"><span class="check-icon">✓</span> Popis</span>
+              <button class="btn-outline-sm" id="copy-popis-btn">Kopírovat</button>
+            </div>
+            <div class="checklist-preview" id="pub-popis-copy"></div>
+          </div>
+          <div class="checklist-item">
+            <div class="checklist-item-header">
+              <span class="checklist-label"><span class="check-icon">✓</span> Cena</span>
+              <button class="btn-outline-sm" id="copy-cena-btn">Kopírovat</button>
+            </div>
+            <div class="checklist-preview" id="pub-cena-copy"></div>
+          </div>
+        </div>
+      </details>
+
+      <button class="btn btn-ghost" id="back-to-review-btn">← Upravit inzerát</button>
+      <button class="btn btn-ghost mt-12" id="new-ad-btn">🏠 Nový inzerát</button>
+    </div>
+  </div>
+
+</div><!-- #app -->
+
+<!-- ─── Settings Sheet ─── -->
+<div class="overlay" id="settings-overlay">
+  <div class="sheet">
+    <div class="sheet-handle"></div>
+    <h2>Nastavení</h2>
+    <div class="input-group">
+      <label class="input-label" for="settings-key-input">Gemini API klíč</label>
+      <input
+        type="password"
+        id="settings-key-input"
+        class="input"
+        placeholder="AIzaSy..."
+        autocomplete="off"
+      />
+    </div>
+    <p class="muted" style="margin-bottom:20px;">🔒 Klíč se uloží jen lokálně na tvém zařízení</p>
+
+    <div style="border-top:1px solid var(--border); margin:4px 0 18px;"></div>
+    <h3 style="font-size:0.95rem; font-weight:600; margin-bottom:4px;">Kontaktní údaje pro Bazoš.cz</h3>
+    <p class="muted" style="margin-bottom:16px; font-size:0.82rem;">Uloží se jednou, použijí se u každého inzerátu</p>
+
+    <div class="input-group">
+      <label class="input-label" for="settings-jmeno">Jméno</label>
+      <input type="text" id="settings-jmeno" class="input" placeholder="Jan Novák" autocomplete="name" />
+    </div>
+    <div class="input-group">
+      <label class="input-label" for="settings-telefon">Telefon</label>
+      <input type="tel" id="settings-telefon" class="input" placeholder="777123456" autocomplete="tel" />
+    </div>
+    <div class="input-group">
+      <label class="input-label" for="settings-psc">PSČ (poštovní směrovací číslo)</label>
+      <input type="text" id="settings-psc" class="input" placeholder="11000" maxlength="6" inputmode="numeric" />
+    </div>
+    <div class="input-group">
+      <label class="input-label" for="settings-heslo">Heslo inzerátů <span class="muted">(pro správu inzerátů na Bazoš.cz)</span></label>
+      <input type="password" id="settings-heslo" class="input" placeholder="Zvolte heslo" autocomplete="new-password" />
+    </div>
+
+    <button class="btn btn-primary" id="save-key-btn" style="margin-bottom:10px;">Uložit nastavení</button>
+    <button class="btn btn-ghost" id="close-settings-btn">Zavřít</button>
+  </div>
+</div>
+
+<!-- ─── Copy Feedback Toast ─── -->
+<div class="copy-feedback" id="copy-toast">Zkopírováno ✓</div>
+
+<script>
+/* ════════════════════════════════════════════════
+   BAZOŠEK – Main Application Script
+   Vanilla JS, no frameworks
+   ════════════════════════════════════════════════ */
+
+// ── Constants ──────────────────────────────────
+const GEMINI_IMAGE_MODEL = 'gemini-3.1-flash-image-preview';
+const GEMINI_TEXT_MODEL  = 'gemini-3.1-flash-image-preview';
+const LS_KEY     = 'bazosek_api_key';
+const LS_JMENO   = 'bazosek_jmeno';
+const LS_TELEFON = 'bazosek_telefon';
+const LS_PSC     = 'bazosek_psc';
+const LS_HESLO   = 'bazosek_heslo';
+const MAX_PHOTOS = 5;
+
+// ── Bazos.cz category labels ───────────────────
+const SUBDOMAIN_LABELS = {
+  sport: 'Sport', elektro: 'Elektronika', mobil: 'Mobily',
+  pc: 'PC a elektronika', auto: 'Auto', motorky: 'Motorky',
+  nabytek: 'Nábytek', dum: 'Dům a zahrada', deti: 'Děti',
+  obleceni: 'Oblečení', foto: 'Foto', hudba: 'Hudba',
+  knihy: 'Knihy', reality: 'Reality', zvirata: 'Zvířata',
+  stroje: 'Stroje a nářadí', vstupenky: 'Vstupenky',
+  sluzby: 'Služby', prace: 'Práce', ostatni: 'Ostatní',
+};
+
+const PHOTO_PROMPT = `Transform this photograph into a professional e-commerce product photo. Replace the background with a pure white seamless studio backdrop (#FFFFFF). Add soft diffused studio lighting from upper-left with a gentle fill light from the right. Add a subtle soft contact shadow beneath the product. CRITICAL: Preserve the EXACT same camera angle, perspective, and product position. Keep ALL signs of wear, scratches, dents, and imperfections exactly as they appear. Do not retouch or clean up the product surface. Keep all logos, text, and labels completely unchanged. Do not alter the product's form or proportions in any way. Only the background and lighting should change. The result should look like the exact same item photographed in a professional studio from the same angle.`;
+
+const ANALYSIS_PROMPT = `Analyzuj tyto fotografie a odpověz POUZE ve formátu JSON (bez markdown, bez \`\`\`):
+{
+  "nazev": "krátký název předmětu (výrobce + model pokud viditelný, max 60 znaků)",
+  "popis": "přirozený, stručný inzerát v češtině (3-5 vět). Popiš předmět, jeho přednosti a aktuální stav. Nezačínej slovem 'Prodám'. Piš jako normální člověk, ne jako robot.",
+  "cena": 1234,
+  "kategorie": "přesný subdomain pro Bazoš.cz - vyber JEDNO z: sport / elektro / mobil / pc / auto / motorky / nabytek / dum / deti / obleceni / foto / hudba / knihy / reality / zvirata / stroje / vstupenky / sluzby / prace / ostatni",
+  "stav": "Nové / Jako nové / Dobré / Použité / Na díly"
+}
+
+Cena v CZK jako celé číslo. Odhadni realistickou bazarovou cenu pro tento stav předmětu na českém trhu.`;
+
+// ── App State ──────────────────────────────────
+const state = {
+  apiKey: '',
+  selectedFiles: [],        // File objects
+  originalDataURLs: [],     // base64 data URLs of originals
+  enhancedDataURLs: [],     // base64 data URLs of enhanced (or original if failed)
+  enhancedWarnings: [],     // boolean per photo – true if fell back to original
+  analysis: null,           // { nazev, popis, cena, kategorie, stav }
+  currentScreen: '',
+  processing: {
+    totalSteps: 0,
+    completedSteps: 0,
+    aborted: false,
+  }
+};
+
+// ── DOM Helpers ────────────────────────────────
+const $ = id => document.getElementById(id);
+const show = id => { const el = $(id); if (el) el.classList.remove('hidden'); };
+const hide = id => { const el = $(id); if (el) el.classList.add('hidden'); };
+
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const s = $(`screen-${name}`);
+  if (s) {
+    s.classList.add('active');
+    window.scrollTo(0, 0);
+  }
+  state.currentScreen = name;
+}
+
+// ── API Key ────────────────────────────────────
+function getKey() { return state.apiKey; }
+
+function saveKey(key) {
+  state.apiKey = key.trim();
+  localStorage.setItem(LS_KEY, state.apiKey);
+}
+
+function loadKey() {
+  const k = localStorage.getItem(LS_KEY) || '';
+  state.apiKey = k;
+  return k;
+}
+
+// ── File → Data URL ────────────────────────────
+function fileToDataURL(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = e => resolve(e.target.result);
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+// Extract base64 and mime from data URL
+function dataURLParts(dataURL) {
+  const [header, data] = dataURL.split(',');
+  const mime = header.match(/:(.*?);/)[1];
+  return { mime, data };
+}
+
+// ── Gemini: Enhance Single Photo ───────────────
+async function enhancePhoto(dataURL, index, total) {
+  const { mime, data } = dataURLParts(dataURL);
+  const key = getKey();
+
+  const body = {
+    contents: [{
+      parts: [
+        { inline_data: { mime_type: mime, data } },
+        { text: PHOTO_PROMPT }
+      ]
+    }],
+    generationConfig: { responseModalities: ['IMAGE', 'TEXT'] }
+  };
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_IMAGE_MODEL}:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    throw new Error(`HTTP ${res.status}: ${errText.slice(0, 200)}`);
+  }
+
+  const json = await res.json();
+
+  // Find image part in response
+  const parts = json?.candidates?.[0]?.content?.parts || [];
+  const imgPart = parts.find(p => p.inlineData && p.inlineData.mimeType?.startsWith('image/'));
+
+  if (!imgPart) {
+    // Return null to signal fallback
+    return null;
+  }
+
+  return `data:${imgPart.inlineData.mimeType};base64,${imgPart.inlineData.data}`;
+}
+
+// ── Gemini: Analyze Item ───────────────────────
+async function analyzeItem(dataURLs) {
+  const key = getKey();
+
+  const photoParts = dataURLs.map(url => {
+    const { mime, data } = dataURLParts(url);
+    return { inline_data: { mime_type: mime, data } };
+  });
+
+  const body = {
+    contents: [{
+      parts: [
+        ...photoParts,
+        { text: ANALYSIS_PROMPT }
+      ]
+    }]
+  };
+
+  const res = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_TEXT_MODEL}:generateContent?key=${key}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    }
+  );
+
+  if (!res.ok) {
+    const errText = await res.text().catch(() => '');
+    // Check for API key error
+    if (res.status === 400 || res.status === 403) {
+      throw new Error(`Chyba API klíče (${res.status}). Zkontroluj klíč v nastavení.`);
+    }
+    throw new Error(`Chyba serveru (${res.status}): ${errText.slice(0, 200)}`);
+  }
+
+  const json = await res.json();
+  const rawText = json?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+
+  // Strip markdown backticks if any
+  const cleaned = rawText
+    .replace(/^```(?:json)?\s*/i, '')
+    .replace(/\s*```\s*$/, '')
+    .trim();
+
+  let parsed;
+  try {
+    parsed = JSON.parse(cleaned);
+  } catch {
+    throw new Error(`Gemini vrátil neplatný JSON: ${cleaned.slice(0, 100)}`);
+  }
+
+  return parsed;
+}
+
+// ── Processing Flow ────────────────────────────
+async function runProcessing() {
+  const n = state.selectedFiles.length;
+  // Steps: 1 analysis + n enhancements
+  state.processing.totalSteps = 1 + n;
+  state.processing.completedSteps = 0;
+  state.processing.aborted = false;
+
+  state.enhancedDataURLs = [];
+  state.enhancedWarnings = new Array(n).fill(false);
+
+  hide('processing-error');
+
+  // Convert all files to data URLs first
+  setStatus('Načítám fotky...', '');
+  setProgress(0, state.processing.totalSteps);
+
+  try {
+    state.originalDataURLs = await Promise.all(state.selectedFiles.map(f => fileToDataURL(f)));
+  } catch (e) {
+    showProcessingError('Nepodařilo se načíst fotky: ' + e.message);
+    return;
+  }
+
+  // ── Step 1: Analyze ──────────────────────────
+  setStatus('Analyzuji předmět...', 'Gemini si prohlíží fotky');
+  try {
+    state.analysis = await analyzeItem(state.originalDataURLs);
+  } catch (e) {
+    showProcessingError(e.message);
+    return;
+  }
+  state.processing.completedSteps = 1;
+  setProgress(1, state.processing.totalSteps);
+
+  if (state.processing.aborted) return;
+
+  // ── Step 2: Enhance Photos (parallel) ────────
+  // Run all enhancements simultaneously
+  const enhanceTasks = state.originalDataURLs.map((url, i) => {
+    return enhancePhoto(url, i, n)
+      .then(result => ({ i, result, error: null }))
+      .catch(err  => ({ i, result: null, error: err.message }));
+  });
+
+  // Process as they complete to update status
+  // We use a counter for the status label
+  let enhanceDone = 0;
+
+  const updateEnhanceStatus = () => {
+    enhanceDone++;
+    state.processing.completedSteps = 1 + enhanceDone;
+    setStatus(
+      `Vylepšuji fotky... (${enhanceDone}/${n})`,
+      'Přidávám studio pozadí'
+    );
+    setProgress(state.processing.completedSteps, state.processing.totalSteps);
+  };
+
+  setStatus(`Vylepšuji fotku 1/${n}...`, 'Přidávám studio pozadí');
+
+  // Wrap each task to call updateEnhanceStatus when done
+  const wrappedTasks = enhanceTasks.map(t => t.then(res => { updateEnhanceStatus(); return res; }));
+
+  const results = await Promise.all(wrappedTasks);
+
+  if (state.processing.aborted) return;
+
+  // Populate enhanced arrays
+  state.enhancedDataURLs = new Array(n);
+  for (const { i, result, error } of results) {
+    if (result) {
+      state.enhancedDataURLs[i] = result;
+      state.enhancedWarnings[i] = false;
+    } else {
+      // Fall back to original
+      state.enhancedDataURLs[i] = state.originalDataURLs[i];
+      state.enhancedWarnings[i] = true;
+    }
+  }
+
+  setStatus('Hotovo! ✓', 'Inzerát je připraven');
+  setProgress(state.processing.totalSteps, state.processing.totalSteps);
+
+  // Small delay for UX feedback
+  await sleep(800);
+
+  // Populate review screen and navigate
+  populateReview();
+  showScreen('review');
+}
+
+function setStatus(main, sub) {
+  $('status-text').textContent = main;
+  $('status-sub').textContent = sub || '';
+}
+
+function setProgress(done, total) {
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+  $('progress-bar').style.width = pct + '%';
+  $('progress-label').textContent = `${done} / ${total}`;
+}
+
+function showProcessingError(msg) {
+  $('processing-error-msg').textContent = msg;
+  show('processing-error');
+  // Hide spinner elements
+  document.querySelector('.spinner-wrap').style.opacity = '0.3';
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+// ── Populate Review Screen ─────────────────────
+function populateReview() {
+  const a = state.analysis;
+
+  $('review-nazev').value = a.nazev || '';
+  $('review-popis').value = a.popis || '';
+  $('review-cena').value  = a.cena  || '';
+  $('review-kategorie').textContent = SUBDOMAIN_LABELS[a.kategorie] || a.kategorie || '';
+  $('review-stav').textContent      = a.stav      || '';
+
+  updateNazevCount();
+
+  // Warnings
+  const warnContainer = $('photo-warnings-container');
+  warnContainer.innerHTML = '';
+  state.enhancedWarnings.forEach((w, i) => {
+    if (w) {
+      const div = document.createElement('div');
+      div.className = 'warn-card';
+      div.textContent = `⚠️ Foto ${i + 1} se nepodařilo vylepšit – použita původní fotka.`;
+      warnContainer.appendChild(div);
+    }
+  });
+
+  // Enhanced photos carousel
+  const row = $('enhanced-photos-row');
+  row.innerHTML = '';
+  state.enhancedDataURLs.forEach((url, i) => {
+    const card = document.createElement('div');
+    card.className = 'photo-card';
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = `Fotka ${i + 1}`;
+    card.appendChild(img);
+
+    if (state.enhancedWarnings[i]) {
+      const badge = document.createElement('div');
+      badge.className = 'warn-badge';
+      badge.textContent = 'Originál';
+      card.appendChild(badge);
+    }
+
+    const dlBtn = document.createElement('button');
+    dlBtn.className = 'dl-btn';
+    dlBtn.innerHTML = '⬇ Stáhnout';
+    dlBtn.addEventListener('click', () => downloadPhoto(url, i + 1));
+    card.appendChild(dlBtn);
+
+    row.appendChild(card);
+  });
+}
+
+function updateNazevCount() {
+  const v = $('review-nazev').value;
+  $('nazev-count').textContent = `${v.length}/60`;
+}
+
+function downloadPhoto(dataURL, num) {
+  const a = document.createElement('a');
+  a.href = dataURL;
+  a.download = `bazosek-foto-${num}.jpg`;
+  a.click();
+}
+
+async function downloadAllPhotos() {
+  const urls = state.enhancedDataURLs;
+  if (!urls || urls.length === 0) return;
+  for (let i = 0; i < urls.length; i++) {
+    await sleep(300); // slight delay so iOS doesn't block multiple downloads
+    downloadPhoto(urls[i], i + 1);
+  }
+  showToast(`${urls.length} fotky staženy ✓`);
+}
+
+// ── Populate Publish Screen ────────────────────
+function populatePublish() {
+  const nazev = $('review-nazev').value;
+  const popis = $('review-popis').value;
+  const cena  = $('review-cena').value;
+  const cenaFmt = `${Number(cena).toLocaleString('cs-CZ')} Kč`;
+
+  // Summary card
+  $('pub-nazev').textContent = nazev;
+  $('pub-popis').textContent = popis;
+  $('pub-cena').textContent  = cenaFmt;
+
+  // Fallback copy fields
+  $('pub-nazev-copy').textContent = nazev;
+  $('pub-popis-copy').textContent = popis;
+  $('pub-cena-copy').textContent  = cenaFmt;
+}
+
+// ── Publish to Bazos.cz ────────────────────────
+function publishToBazos() {
+  const jmeno   = localStorage.getItem(LS_JMENO)   || '';
+  const telefon = localStorage.getItem(LS_TELEFON) || '';
+  const psc     = localStorage.getItem(LS_PSC)     || '';
+  const heslo   = localStorage.getItem(LS_HESLO)   || '';
+
+  if (!jmeno || !telefon || !psc || !heslo) {
+    // Pre-fill settings overlay and open it
+    $('settings-key-input').value = getKey();
+    $('settings-jmeno').value     = jmeno;
+    $('settings-telefon').value   = telefon;
+    $('settings-psc').value       = psc;
+    $('settings-heslo').value     = heslo;
+    $('settings-overlay').classList.add('open');
+    showToast('Nejdřív vyplň kontaktní údaje ↑');
+    return;
+  }
+
+  const nazev = $('review-nazev').value;
+  const popis = $('review-popis').value;
+  const cena  = $('review-cena').value;
+  const cat   = (state.analysis && state.analysis.kategorie) || '';
+  const validSubs = Object.keys(SUBDOMAIN_LABELS).filter(k => k !== 'ostatni');
+  const subdomain = validSubs.includes(cat) ? cat : null;
+  const formUrl = subdomain
+    ? `https://${subdomain}.bazos.cz/pridat-inzerat.php`
+    : 'https://www.bazos.cz/pridat.php';
+
+  // Build a hidden form and submit it (opens in new tab)
+  const form = document.createElement('form');
+  form.method = 'POST';
+  form.action = formUrl;
+  form.target = '_blank';
+  form.style.cssText = 'position:fixed;opacity:0;pointer-events:none;';
+
+  const fields = {
+    nadpis:     nazev,
+    popis:      popis,
+    cena:       String(cena),
+    cenavyber:  '1',
+    lokalita:   psc,
+    jmeno:      jmeno,
+    telefoni:   telefon,
+    heslobazar: heslo,
+  };
+
+  Object.entries(fields).forEach(([name, value]) => {
+    const inp = document.createElement('input');
+    inp.type  = 'hidden';
+    inp.name  = name;
+    inp.value = value;
+    form.appendChild(inp);
+  });
+
+  document.body.appendChild(form);
+  form.submit();
+  document.body.removeChild(form);
+
+  showToast('Otevírám Bazoš.cz… 🚀');
+}
+
+// ── Copy to Clipboard ──────────────────────────
+async function copyText(text) {
+  try {
+    await navigator.clipboard.writeText(text);
+    showToast('Zkopírováno ✓');
+  } catch {
+    // Fallback
+    const ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.position = 'fixed';
+    ta.style.opacity = '0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showToast('Zkopírováno ✓');
+  }
+}
+
+let toastTimer;
+function showToast(msg) {
+  const t = $('copy-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2000);
+}
+
+// ── Thumbnail Row Builder ──────────────────────
+function buildThumbRow() {
+  const row = $('thumb-row');
+  row.innerHTML = '';
+  state.selectedFiles.forEach((file, i) => {
+    const url = URL.createObjectURL(file);
+    const wrap = document.createElement('div');
+    wrap.className = 'thumb';
+    wrap.dataset.index = i;
+
+    const img = document.createElement('img');
+    img.src = url;
+    img.alt = file.name;
+    wrap.appendChild(img);
+
+    const badge = document.createElement('div');
+    badge.className = 'thumb-badge';
+    badge.textContent = `${i + 1}`;
+    wrap.appendChild(badge);
+
+    const rmBtn = document.createElement('button');
+    rmBtn.className = 'thumb-remove';
+    rmBtn.innerHTML = '×';
+    rmBtn.title = 'Odebrat';
+    rmBtn.addEventListener('click', () => removePhoto(i));
+    wrap.appendChild(rmBtn);
+
+    row.appendChild(wrap);
+  });
+
+  $('photo-count').textContent = `(${state.selectedFiles.length}/${MAX_PHOTOS})`;
+}
+
+function removePhoto(index) {
+  state.selectedFiles.splice(index, 1);
+  if (state.selectedFiles.length === 0) {
+    showScreen('home');
+    return;
+  }
+  buildThumbRow();
+}
+
+// ── Screen: Setup ──────────────────────────────
+$('setup-btn').addEventListener('click', () => {
+  const key = $('api-key-input').value.trim();
+  if (!key) {
+    $('setup-error-msg').textContent = 'Zadej prosím API klíč.';
+    show('setup-error');
+    return;
+  }
+  if (!key.startsWith('AIza')) {
+    $('setup-error-msg').textContent = 'Klíč vypadá neplatně – měl by začínat "AIza".';
+    show('setup-error');
+    return;
+  }
+  saveKey(key);
+  hide('setup-error');
+  showScreen('home');
+});
+
+$('api-key-input').addEventListener('keydown', e => {
+  if (e.key === 'Enter') $('setup-btn').click();
+});
+
+// ── Screen: Home ───────────────────────────────
+$('add-photos-btn').addEventListener('click', () => {
+  $('file-input').value = '';
+  $('file-input').click();
+});
+
+$('file-input').addEventListener('change', e => {
+  let files = Array.from(e.target.files);
+  if (!files.length) return;
+
+  let warned = false;
+  if (files.length > MAX_PHOTOS) {
+    files = files.slice(0, MAX_PHOTOS);
+    warned = true;
+  }
+
+  state.selectedFiles = files;
+  buildThumbRow();
+
+  if (warned) {
+    show('photo-warning');
+  } else {
+    hide('photo-warning');
+  }
+
+  showScreen('photos');
+});
+
+// ── Screen: Photos Selected ────────────────────
+$('process-btn').addEventListener('click', () => {
+  if (state.selectedFiles.length === 0) return;
+  state.processing.aborted = false;
+  document.querySelector('.spinner-wrap').style.opacity = '1';
+  showScreen('processing');
+  runProcessing();
+});
+
+$('back-to-home-btn').addEventListener('click', () => {
+  state.selectedFiles = [];
+  showScreen('home');
+});
+
+// ── Screen: Processing ─────────────────────────
+$('retry-btn').addEventListener('click', () => {
+  hide('processing-error');
+  document.querySelector('.spinner-wrap').style.opacity = '1';
+  runProcessing();
+});
+
+// ── Screen: Review ─────────────────────────────
+$('review-nazev').addEventListener('input', updateNazevCount);
+
+$('to-publish-btn').addEventListener('click', () => {
+  populatePublish();
+  showScreen('publish');
+});
+
+$('back-to-photos-btn').addEventListener('click', () => {
+  showScreen('photos');
+  buildThumbRow();
+});
+
+// ── Screen: Publish ────────────────────────────
+$('download-all-btn').addEventListener('click', () => {
+  downloadAllPhotos();
+});
+
+$('bazos-submit-btn').addEventListener('click', () => {
+  publishToBazos();
+});
+
+$('copy-nazev-btn').addEventListener('click', () => {
+  copyText($('review-nazev').value);
+});
+
+$('copy-popis-btn').addEventListener('click', () => {
+  copyText($('review-popis').value);
+});
+
+$('copy-cena-btn').addEventListener('click', () => {
+  copyText($('review-cena').value);
+});
+
+$('back-to-review-btn').addEventListener('click', () => {
+  showScreen('review');
+});
+
+$('new-ad-btn').addEventListener('click', () => {
+  // Reset state
+  state.selectedFiles = [];
+  state.originalDataURLs = [];
+  state.enhancedDataURLs = [];
+  state.enhancedWarnings = [];
+  state.analysis = null;
+  $('file-input').value = '';
+  showScreen('home');
+});
+
+// ── Settings Sheet ─────────────────────────────
+$('settings-btn').addEventListener('click', () => {
+  $('settings-key-input').value = getKey();
+  $('settings-jmeno').value     = localStorage.getItem(LS_JMENO)   || '';
+  $('settings-telefon').value   = localStorage.getItem(LS_TELEFON) || '';
+  $('settings-psc').value       = localStorage.getItem(LS_PSC)     || '';
+  $('settings-heslo').value     = localStorage.getItem(LS_HESLO)   || '';
+  $('settings-overlay').classList.add('open');
+});
+
+$('close-settings-btn').addEventListener('click', () => {
+  $('settings-overlay').classList.remove('open');
+});
+
+$('settings-overlay').addEventListener('click', e => {
+  if (e.target === $('settings-overlay')) {
+    $('settings-overlay').classList.remove('open');
+  }
+});
+
+$('save-key-btn').addEventListener('click', () => {
+  const key = $('settings-key-input').value.trim();
+  if (key) saveKey(key);
+
+  const jmeno   = $('settings-jmeno').value.trim();
+  const telefon = $('settings-telefon').value.trim();
+  const psc     = $('settings-psc').value.trim();
+  const heslo   = $('settings-heslo').value.trim();
+
+  if (jmeno)   localStorage.setItem(LS_JMENO,   jmeno);
+  if (telefon) localStorage.setItem(LS_TELEFON, telefon);
+  if (psc)     localStorage.setItem(LS_PSC,     psc);
+  if (heslo)   localStorage.setItem(LS_HESLO,   heslo);
+
+  $('settings-overlay').classList.remove('open');
+  showToast('Nastavení uloženo ✓');
+});
+
+// ── Boot ───────────────────────────────────────
+(function init() {
+  const key = loadKey();
+  if (key) {
+    showScreen('home');
+  } else {
+    showScreen('setup');
+  }
+})();
+</script>
+</body>
+</html>
